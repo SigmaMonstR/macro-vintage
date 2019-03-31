@@ -8,7 +8,11 @@ require(rvest)
 out <- read_html("https://www.philadelphiafed.org/research-and-data/real-time-center/real-time-data/data-files/first-second-third")
 
 links <- html_nodes(out, "a") %>% html_attr("href")
+link_index <- grep("-/media/research-and-data/real-time-center/real-time-data/data-files/files/xlsx/", links)
 links <- grep("-/media/research-and-data/real-time-center/real-time-data/data-files/files/xlsx/", links, value = T)
+
+link_names <- html_nodes(out, "a")  %>% html_text()
+write.csv(tolower(link_names[link_index]), "series_names.csv", row.names = FALSE)
 
 master <- list()
 for(j in links){
@@ -43,8 +47,10 @@ for(j in links){
 
 save(master, file = "macro_vintages.Rda")
 
+#########################
+#Pull together into CSVs#
+#########################
 
-#Pull together
   qtr <- data.frame()
   mo <- data.frame()
   
@@ -87,3 +93,6 @@ save(master, file = "macro_vintages.Rda")
     qtr <- merge(qtr, tots, by = "date", all.x = T, all.y = T)
     
   save(qtr, mo, file = "macro_vintages.Rda")
+  write.csv(qtr, "qtr_vintages.csv", row.names = FALSE)
+  write.csv(mo, "mo_vintages.csv", row.names = FALSE)
+  
